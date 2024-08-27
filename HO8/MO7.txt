@@ -1,0 +1,120 @@
+;******************************************
+; NOTE: use "test char, 0" to set zflag to 1
+;******************************************
+
+;******************************************
+; set zero flag if ishex is true
+;******************************************
+
+ishex			MACRO	chr
+				LOCAL	ishex1, ishex2, ishex3, ishex4
+
+				isdig	chr				; IF isdig(chr)
+				je		ishex1	
+				cmp		chr, 'A'		;   or chr >= 'A' and chr <= 'F'
+				jnae	ishex2
+				cmp		chr, 'F'
+				jnbe	ishex2
+				jmp		ishex1
+ishex2:			cmp		chr, 'a'		;   or chr >= 'a' and chr <= 'f'
+				jnae	ishex3
+				cmp		chr, 'f'
+				jnbe	ishex3
+ishex1:			test	chr, 0			;     zflag = 1
+				jmp		ishex4
+ishex3:									; ELSE
+										;   zflag = 0
+ishex4:									; ENDIF
+				ENDM
+
+;******************************************
+; set zero flag if islower is true
+;******************************************
+
+islower			MACRO	chr
+				LOCAL	islower1, islower2
+
+				cmp		chr, 'a'		; IF char >= 'a' and char <= 'z'
+				jnae	islower1
+				cmp		chr, 'z'
+				jnbe	islower1
+
+				test	chr, 0			;   zFlag = 1
+				jmp		islower2
+islower1:								; ELSE
+										;   zFlag = 0
+islower2:								; ENDIF
+				ENDM
+
+;******************************************
+; set zero flag if isupper is true
+;******************************************
+
+isupper			MACRO	chr
+				LOCAL	isupper1, isupper2
+
+				cmp		chr, 'A'		; IF char >= 'A' and char <= 'Z'
+				jnae	isupper1
+				cmp		chr, 'Z'
+				jnbe	isupper1
+				test	chr, 0			;   zFlag = 1
+				jmp		isupper2
+isupper1:								; ELSE
+										;   zFlag = 0
+isupper2:								; ENDIF
+				ENDM
+
+;******************************************
+; set zero flag if isalpha is true
+;******************************************
+
+isalpha			MACRO	chr
+				LOCAL	isalpha1, isalpha2, isalpha3
+				
+				islower chr				; IF islower (chr)
+				je		isalpha1
+				isupper	chr				;   OR isupper (chr)
+				jne		isalpha2
+isalpha1:		test	chr, 0					;     zFlag = 1
+				jmp		isalpha3
+isalpha2:								; ELSE
+										;   zFlag = 0
+isalpha3:								; ENDIF
+				ENDM
+
+toupper			MACRO	chr
+
+				and		chr, 11011111B	; char = toupper(chr)
+				ENDM
+
+tolower			MACRO	chr
+
+				or		chr, 00100000B	; char = tolower(chr)
+				ENDM
+
+
+;******************************************
+; set zero flag if the char is a whitespace
+;******************************************
+isWSpace		MACRO	chr
+				LOCAL		isWs1, isWs2, isWs3
+
+				cmp		chr, ' '    ; If char = ' '
+				je		isWs1
+
+				cmp		chr, 09	    ; OR char = HT
+				je		isWs1
+
+				cmp		chr, 11	    ; OR char = VT
+				je		isWs1
+
+				jmp		isWs2
+isWs1:
+				test		chr, 0	    ; zFlag = 1
+
+isWs2:				; Else
+
+				; zFlag = 0
+
+isWs3:				; EndIf
+				ENDM
